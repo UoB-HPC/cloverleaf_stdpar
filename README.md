@@ -71,6 +71,6 @@ Options:
   -h  --help               Print the message
       --list               List available devices
       --device <INDEX>     Select device at INDEX from output of --list
-      --input              Custom clover.in file (defaults to clover.in if unspecified)
+      --file               Custom clover.in file (defaults to clover.in if unspecified)
 ```
 
