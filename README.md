@@ -33,13 +33,16 @@ Flags:
   to all configs
 * `CXX_EXTRA_LINKER_FLAGS` - `STRING`, appends extra linker flags (the comma separated list after
   the `-Wl` flag) to the linker, applies to all configs
+* `USE_VECTOR` - `BOOL(ON|OFF)`, whether to use `std::vector` for the backing buffers or plain
+  pointers through `std::malloc`.
 
 Offload specific flags:
 
-* `NVHPC_OFFLOAD` - Enable offloading support (via the non-standard `-stdpar`) for the new NVHPC
-  SDK.
-  The values are Nvidia architectures in ccXY format which will be passed in via `-gpu=` (
-  e.g `cc70`).
+* `USE_TBB` - `BOOL(ON|OFF)`, whether to download, compile, and link TBB as part of the build. This
+  is useful for the PSTL implementation of `libstdc++` which delegates to TBB.
+* `NVHPC_OFFLOAD` - `STRING`, enables offloading support (via the non-standard `-stdpar`) for the
+  NVHPC SDK. The values are Nvidia architectures in ccXY format which will be passed in
+  via `-gpu=` (e.g `cc70`).
 
 If parts of your toolchain are installed at different places, you'll have to specify it manually,
 for example:

@@ -1,10 +1,23 @@
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
+include(FetchContent)
 
 project(cloverleaf_stdpar)
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(USE_TBB ON)
+
+if (USE_TBB)
+    FetchContent_Declare(
+            TBB
+            GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
+            GIT_TAG faaf43c4ab22cb4b4267d65d5e218fa58800eea8
+    )
+    FetchContent_MakeAvailable(TBB)
+    set(EXTRA_LIBS TBB::tbb)
+    set(EXTRA_HEADERS ${TBB_SOURCE_DIR})
+endif ()
 
 # Enable offloading support (via the non-standard `-stdpar`) for the new NVHPC SDK.
 # The values are Nvidia architectures in ccXY format will be passed in via `-gpu=` (e.g `cc70`)
@@ -86,8 +99,14 @@ set(SOURCES
         src/viscosity.cpp
         src/visit.cpp)
 
-include_directories(src)
+
 add_executable(clover_leaf ${SOURCES})
+
+target_include_directories(clover_leaf PUBLIC BEFORE src)
+
+if (USE_VECTOR)
+    target_compile_definitions(clover_leaf PUBLIC USE_VECTOR)
+endif ()
 
 target_compile_options(clover_leaf
         PUBLIC
@@ -102,10 +121,12 @@ target_compile_options(clover_leaf
         ${EXTRA_FLAGS}
         )
 
+target_include_directories(clover_leaf PUBLIC BEFORE ${EXTRA_HEADERS})
+
 set(DEBUG_OPTIONS -O2 ${OFFLOAD_FLAGS} ${CXX_EXTRA_FLAGS})
 set(RELEASE_OPTIONS -O3 -march=native -mtune=native ${OFFLOAD_FLAGS} ${CXX_EXTRA_FLAGS})
 
-target_link_libraries(clover_leaf PUBLIC ${MPI_C_LIB})
+target_link_libraries(clover_leaf PUBLIC ${MPI_C_LIB} ${EXTRA_LIBS})
 #target_link_libraries(clover_leaf PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
 
 target_compile_options(clover_leaf PUBLIC "$<$<CONFIG:RelWithDebInfo>:${RELEASE_OPTIONS}>")
