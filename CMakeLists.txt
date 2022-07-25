@@ -122,7 +122,7 @@ target_compile_options(clover_leaf
 target_include_directories(clover_leaf PUBLIC BEFORE ${EXTRA_HEADERS})
 
 set(DEBUG_OPTIONS -O2 ${OFFLOAD_FLAGS} ${CXX_EXTRA_FLAGS})
-set(RELEASE_OPTIONS -O3 -march=native -mtune=native ${OFFLOAD_FLAGS} ${CXX_EXTRA_FLAGS})
+set(RELEASE_OPTIONS -O3 ${OFFLOAD_FLAGS} ${CXX_EXTRA_FLAGS})
 
 target_link_libraries(clover_leaf PUBLIC ${MPI_C_LIB} ${EXTRA_LIBS})
 #target_link_libraries(clover_leaf PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
