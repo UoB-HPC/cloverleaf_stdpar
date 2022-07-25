@@ -6,8 +6,6 @@ project(cloverleaf_stdpar)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(USE_TBB ON)
-
 if (USE_TBB)
     FetchContent_Declare(
             TBB
