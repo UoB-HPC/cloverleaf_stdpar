@@ -106,6 +106,10 @@ if (USE_VECTOR)
     target_compile_definitions(clover_leaf PUBLIC USE_VECTOR)
 endif ()
 
+if (SERIAL_COPY_CTOR)
+    target_compile_definitions(clover_leaf PUBLIC SERIAL_COPY_CTOR)
+endif ()
+
 target_compile_options(clover_leaf
         PUBLIC
         -Wall

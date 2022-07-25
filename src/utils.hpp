@@ -192,7 +192,7 @@ namespace clover {
         explicit Buffer1D(size_t size) : size(size), data(static_cast<T *>(std::malloc(sizeof(T) * size))) {}
         Buffer1D(const Buffer1D &that) : Buffer1D(that.size) {
             // XXX parallel copy should work on GPUs, but we get illegal memory access in NVHPC stdpar. Just copy on host for now, this is only needed for decomposition (it's not timed).
-#ifdef __NVCOMPILER
+#ifdef SERIAL_COPY_CTOR
             std::copy(that.data, that.data + size, data);
 #else
             par_ranged1({0, size}, [&](auto i){ data[i] = that.data[i]; });
@@ -220,7 +220,7 @@ namespace clover {
         Buffer2D(size_t sizeX, size_t sizeY) : sizeX(sizeX), sizeY(sizeY),  data(static_cast<T *>(std::malloc(sizeof(T) * sizeX * sizeY))) {}
         Buffer2D(const Buffer2D &that) : Buffer2D(that.sizeX, that.sizeY) {
             // XXX parallel copy should work on GPUs, but we get illegal memory access in NVHPC stdpar. Just copy on host for now, this is only needed for decomposition (it's not timed).
-#ifdef __NVCOMPILER
+#ifdef SERIAL_COPY_CTOR
             std::copy(that.data, that.data + that.sizeX * that.sizeY, data);
 #else
             par_ranged2({0, 0, sizeX, sizeY}, [&](auto i, auto j){ data[i + j * sizeX] = that.data[i + j * sizeX]; });
