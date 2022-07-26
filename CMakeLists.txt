@@ -12,7 +12,12 @@ if (USE_TBB)
             GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
             GIT_TAG faaf43c4ab22cb4b4267d65d5e218fa58800eea8
     )
-    FetchContent_MakeAvailable(TBB)
+    # Not using FetchContent_MakeAvailable because we need EXCLUDE_FROM_ALL
+    FetchContent_GetProperties(TBB)
+    if (NOT TBB_POPULATED)
+        FetchContent_Populate(TBB)
+        add_subdirectory(${tbb_SOURCE_DIR} ${tbb_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif ()
     set(EXTRA_LIBS TBB::tbb)
     set(EXTRA_HEADERS ${TBB_SOURCE_DIR})
 endif ()
@@ -136,6 +141,6 @@ target_compile_options(clover_leaf PUBLIC "$<$<CONFIG:Release>:${RELEASE_OPTIONS
 target_compile_options(clover_leaf PUBLIC "$<$<CONFIG:Debug>:${DEBUG_OPTIONS}>")
 
 
-target_link_options(clover_leaf PUBLIC ${OpenMP_CXX_FLAGS} ${OFFLOAD_FLAGS})
+target_link_options(clover_leaf PUBLIC ${OFFLOAD_FLAGS})
 target_link_options(clover_leaf PUBLIC LINKER:${CXX_EXTRA_LINKER_FLAGS})
 
