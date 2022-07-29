@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 		std::cout
 				<< std::endl
 				<< "Clover Version " << g_version << std::endl
-				<< "Kokkos Version" << std::endl
+				<< "C++ StdPar impl." << std::endl
 				<< "Task Count " << parallel.max_task << std::endl
 				<< std::endl;
 	}

@@ -100,7 +100,7 @@ void build_field(global_variables &globals) {
 
 
 		// Nested loop over (t_ymin-2:t_ymax+3) and (t_xmin-2:t_xmax+3) inclusive
-		clover::par_ranged2(Range2d{0u, 0u, xrange + 1, yrange + 1}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{0u, 0u, xrange + 1, yrange + 1}, [=](const int i, const int j) {
 			field.work_array1(i, j) = 0.0;
 			field.work_array2(i, j) = 0.0;
 			field.work_array3(i, j) = 0.0;
@@ -116,7 +116,7 @@ void build_field(global_variables &globals) {
 		});
 
 		// Nested loop over (t_ymin-2:t_ymax+2) and (t_xmin-2:t_xmax+2) inclusive
-		clover::par_ranged2(Range2d{0u, 0u, xrange, yrange}, ([&](const int i, const int j) {
+		clover::par_ranged2(Range2d{0u, 0u, xrange, yrange}, ([=](const int i, const int j) {
 			field.density0(i, j) = 0.0;
 			field.density1(i, j) = 0.0;
 			field.energy0(i, j) = 0.0;
@@ -128,39 +128,39 @@ void build_field(global_variables &globals) {
 		}));
 
 		// Nested loop over (t_ymin-2:t_ymax+2) and (t_xmin-2:t_xmax+3) inclusive
-		clover::par_ranged2(Range2d{0u, 0u, xrange, yrange}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{0u, 0u, xrange, yrange}, [=](const int i, const int j) {
 			field.vol_flux_x(i, j) = 0.0;
 			field.mass_flux_x(i, j) = 0.0;
 			field.xarea(i, j) = 0.0;
 		});
 
 		// Nested loop over (t_ymin-2:t_ymax+3) and (t_xmin-2:t_xmax+2) inclusive
-		clover::par_ranged2(Range2d{0u, 0u, xrange, yrange + 1}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{0u, 0u, xrange, yrange + 1}, [=](const int i, const int j) {
 			field.vol_flux_y(i, j) = 0.0;
 			field.mass_flux_y(i, j) = 0.0;
 			field.yarea(i, j) = 0.0;
 		});
 
 		// (t_xmin-2:t_xmax+2) inclusive
-		clover::par_ranged1(Range1d{0u, xrange}, ([&](int id) {
+		clover::par_ranged1(Range1d{0u, xrange}, ([=](int id) {
 			field.cellx[id] = 0.0;
 			field.celldx[id] = 0.0;
 		}));
 
 		// (t_ymin-2:t_ymax+2) inclusive
-		clover::par_ranged1(Range1d{0u, yrange}, ([&](int id) {
+		clover::par_ranged1(Range1d{0u, yrange}, ([=](int id) {
 			field.celly[id] = 0.0;
 			field.celldy[id] = 0.0;
 		}));
 
 		// (t_xmin-2:t_xmax+3) inclusive
-		clover::par_ranged1(Range1d{0u, xrange + 1}, ([&](int id) {
+		clover::par_ranged1(Range1d{0u, xrange + 1}, ([=](int id) {
 			field.vertexx[id] = 0.0;
 			field.vertexdx[id] = 0.0;
 		}));
 
 		// (t_ymin-2:t_ymax+3) inclusive
-		clover::par_ranged1(Range1d{0u, yrange + 1}, ([&](int id) {
+		clover::par_ranged1(Range1d{0u, yrange + 1}, ([=](int id) {
 			field.vertexy[id] = 0.0;
 			field.vertexdy[id] = 0.0;
 		}));

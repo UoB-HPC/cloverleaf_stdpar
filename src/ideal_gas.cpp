@@ -47,7 +47,7 @@ void ideal_gas_kernel(
 
 //	Kokkos::MDRangePolicy <Kokkos::Rank<2>> policy({x_min + 1, y_min + 1}, {x_max + 2, y_max + 2});
 
-	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [&](const int i, const int j) {
+	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [=](const int i, const int j) {
 		double v = 1.0 / density(i, j);
 		pressure(i, j) = (1.4 - 1.0) * density(i, j) * energy(i, j);
 		double pressurebyenergy = (1.4 - 1.0) * density(i, j);

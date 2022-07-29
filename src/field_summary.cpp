@@ -97,8 +97,8 @@ void field_summary(global_variables &globals, parallel_ &parallel) {
 		int xmin = t.info.t_xmin;
 		field_type &field = t.field;
 
-        auto r = range<int>(0, (ymax - ymin + 1) * (xmax - xmin + 1));
-        s = std::transform_reduce(EXEC_POLICY, r.begin(), r.end(), s, std::plus<>(), [=, &field](int idx){
+        auto r = range<size_t>(0, (ymax - ymin + 1) * (xmax - xmin + 1));
+        s = std::transform_reduce(EXEC_POLICY, r.begin(), r.end(), s, std::plus<>(), [=](size_t idx){
             const size_t j = xmin + 1 + idx % (xmax - xmin + 1);
             const size_t k = ymin + 1 + idx / (xmax - xmin + 1);
             double vsqrd = 0.0;

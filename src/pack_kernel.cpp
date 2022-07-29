@@ -57,7 +57,7 @@ void clover_pack_message_left(int x_min, int x_max, int y_min, int y_max,
 	// DO k=y_min-depth,y_max+y_inc+depth
 
 
-	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=, &field, &left_snd](int k) {
+	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=](int k) {
 		for (int j = 0; j < depth; ++j) {
 			size_t index = buffer_offset + j + (k + depth - 1) * depth;
 			left_snd[index] = field(x_min + x_inc - 1 + j, k);
@@ -97,7 +97,7 @@ void clover_unpack_message_left(int x_min, int x_max, int y_min, int y_max,
 
 
 
-	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=, &field, &left_rcv](int k) {
+	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=](int k) {
 		for (int j = 0; j < depth; ++j) {
 			size_t index = buffer_offset + j + (k + depth - 1) * depth;
 			field(x_min - j, k) = left_rcv[index];
@@ -134,7 +134,7 @@ void clover_pack_message_right(int x_min, int x_max, int y_min, int y_max,
 
 	// DO k=y_min-depth,y_max+y_inc+depth
 
-	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=, &field, &right_snd](int k) {
+	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=](int k) {
 		for (int j = 0; j < depth; ++j) {
 			size_t index = buffer_offset + j + (k + depth - 1) * depth;
 			right_snd[index] = field(x_min + 1 + j, k);
@@ -175,7 +175,7 @@ void clover_unpack_message_right(int x_min, int x_max, int y_min, int y_max,
 
 	// DO k=y_min-depth,y_max+y_inc+depth
 
-	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=, &field, &right_rcv](int k) {
+	clover::par_ranged1(Range1d{y_min - depth + 1, y_max + y_inc + depth + 2}, [=](int k) {
 		for (int j = 0; j < depth; ++j) {
 			size_t index = buffer_offset + j + (k + depth - 1) * depth;
 			right_rcv[index] = field(x_max + x_inc + j, k);
@@ -212,7 +212,7 @@ void clover_pack_message_top(int x_min, int x_max, int y_min, int y_max,
 	for (int k = 0; k < depth; ++k) {
 		// DO j=x_min-depth,x_max+x_inc+depth
 
-		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=, &field, &top_snd](int j) {
+		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=](int j) {
 			size_t index = buffer_offset + k + (j + depth - 1) * depth;
 			top_snd[index] = field(j, y_max + 1 - k);
 		});
@@ -251,7 +251,7 @@ void clover_unpack_message_top(int x_min, int x_max, int y_min, int y_max,
 		// DO j=x_min-depth,x_max+x_inc+depth
 
 
-		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=, &field, &top_rcv](int j) {
+		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=](int j) {
 			size_t index = buffer_offset + k + (j + depth - 1) * depth;
 			field(j, y_max + y_inc + k) = top_rcv[index];
 		});
@@ -290,7 +290,7 @@ void clover_pack_message_bottom(int x_min, int x_max, int y_min, int y_max,
 	for (int k = 0; k < depth; ++k) {
 		// DO j=x_min-depth,x_max+x_inc+depth
 
-		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=, &field, &bottom_snd](int j) {
+		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=](int j) {
 			size_t index = buffer_offset + k + (j + depth - 1) * depth;
 			bottom_snd[index] = field(j, y_min + y_inc - 1 + k);
 		});
@@ -324,7 +324,7 @@ void clover_unpack_message_bottom(int x_min, int x_max, int y_min, int y_max,
 	for (int k = 0; k < depth; ++k) {
 		// DO j=x_min-depth,x_max+x_inc+depth
 
-		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=, &field, &bottom_rcv](int j) {
+		clover::par_ranged1(Range1d{x_min - depth + 1, x_max + x_inc + depth + 2}, [=](int j) {
 			size_t index = buffer_offset + k + (j + depth - 1) * depth;
 			field(j, y_min - k) = bottom_rcv[index];
 		});

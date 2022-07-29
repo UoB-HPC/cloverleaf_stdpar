@@ -56,13 +56,13 @@ void initialise_chunk(const int tile, global_variables &globals) {
 	field_type &field = globals.chunk.tiles[tile].field;
 
 
-	clover::par_ranged1(Range1d{0u, xrange}, [=, &field](int j) {
+	clover::par_ranged1(Range1d{0u, xrange}, [=](int j) {
 		field.vertexx[j] = xmin + dx * (static_cast<int>(j ) - 1 - x_min);
 		field.vertexdx[j] = dx;
 	});
 
 
-	clover::par_ranged1(Range1d{0u, yrange}, [=, &field](int k) {
+	clover::par_ranged1(Range1d{0u, yrange}, [=](int k) {
 		field.vertexy[k] = ymin + dy * (static_cast<int>(k ) - 1 - y_min);
 		field.vertexdy[k] = dy;
 	});
@@ -71,19 +71,19 @@ void initialise_chunk(const int tile, global_variables &globals) {
 	const size_t xrange1 = (x_max + 2) - (x_min - 2) + 1;
 	const size_t yrange1 = (y_max + 2) - (y_min - 2) + 1;
 
-	clover::par_ranged1(Range1d{0u, xrange1}, [=, &field](int j) {
+	clover::par_ranged1(Range1d{0u, xrange1}, [=](int j) {
 		field.cellx[j] = 0.5 * (field.vertexx[j] + field.vertexx[j + 1]);
 		field.celldx[j] = dx;
 	});
 
 
-	clover::par_ranged1(Range1d{0u, yrange1}, [=, &field](int k) {
+	clover::par_ranged1(Range1d{0u, yrange1}, [=](int k) {
 		field.celly[k] = 0.5 * (field.vertexy[k] + field.vertexy[k + 1]);
 		field.celldy[k] = dy;
 	});
 
 
-	clover::par_ranged2(Range2d{0u, 0u, xrange1, yrange1}, [=, &field](const int i, const int j) {
+	clover::par_ranged2(Range2d{0u, 0u, xrange1, yrange1}, [=](const int i, const int j) {
 		field.volume(i, j) = dx * dy;
 		field.xarea(i, j) = field.celldy[j];
 		field.yarea(i, j) = field.celldx[i];

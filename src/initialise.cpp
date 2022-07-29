@@ -85,12 +85,10 @@ RunConfig parseArgs(const size_t num_devices,
 		} else if (arg == "--list") {
 			printSimple(num_devices);
 			std::exit(EXIT_SUCCESS);
-		} else if (arg == "--no-target") {
-			config.deviceIdx = -1;
 		} else if (arg == "--device") {
 			readParam(i, "--device specified but no index was given", [&](const auto &param) {
 				auto selected = std::stoul(param);
-				if (selected < 0 || selected >= num_devices) {
+				if (selected || selected >= num_devices) {
 					std::cerr << "bad device index `" << param << "`" << std::endl;
 					std::exit(EXIT_FAILURE);
 				}
@@ -123,7 +121,7 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 
 	if (parallel.boss) {
 		g_out << "Clover Version " << g_version << std::endl
-		      << "Kokkos Version" << std::endl
+		      << "C++ StdPar impl." << std::endl
 		      << "Task Count " << parallel.max_task << std::endl
 		      << std::endl;
 
@@ -144,7 +142,7 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 	auto runConfig = parseArgs(num_devices, args);
 	auto file = runConfig.file;
 	auto selectedDevice = runConfig.deviceIdx;
-	std::cout << "Using OMP device: " << selectedDevice << std::endl;
+	std::cout << "Using device: " << selectedDevice << std::endl;
 
 	std::ifstream g_in;
 	if (parallel.boss) {

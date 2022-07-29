@@ -43,7 +43,7 @@ void flux_calc_kernel(
 	//   DO j=x_min,x_max+1
 // Note that the loops calculate one extra flux than required, but this
 	// allows loop fusion that improves performance
-	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [&, dt](const int i, const int j) {
+	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [=](const int i, const int j) {
 
 		vol_flux_x(i, j) = 0.25 * dt * xarea(i, j)
 		                   * (xvel0(i, j) + xvel0(i + 0, j + 1) + xvel1(i, j) +

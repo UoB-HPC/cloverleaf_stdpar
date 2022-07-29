@@ -35,7 +35,7 @@ void revert_kernel(int x_min, int x_max, int y_min, int y_max,
 
 	// DO k=y_min,y_max
 	//   DO j=x_min,x_max
-	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [&](const int i, const int j) {
+	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [=](const int i, const int j) {
 		density1(i, j) = density0(i, j);
 		energy1(i, j) = energy0(i, j);
 	});

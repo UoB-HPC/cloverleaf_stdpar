@@ -63,7 +63,7 @@ void advec_cell_kernel(
 		if (sweep_number == 1) {
 
 
-			clover::par_ranged2(policy, [&](const int i, const int j) {
+			clover::par_ranged2(policy, [=](const int i, const int j) {
 
 				pre_vol(i, j) = volume(i, j) +
 				                (vol_flux_x(i + 1, j + 0) - vol_flux_x(i, j) +
@@ -77,7 +77,7 @@ void advec_cell_kernel(
 		} else {
 
 
-			clover::par_ranged2(policy, [&](const int i, const int j) {
+			clover::par_ranged2(policy, [=](const int i, const int j) {
 				pre_vol(i, j) =
 						volume(i, j) + vol_flux_x(i + 1, j + 0) - vol_flux_x(i, j);
 				post_vol(i, j) = volume(i, j);
@@ -87,7 +87,7 @@ void advec_cell_kernel(
 
 		// DO k=y_min,y_max
 		//   DO j=x_min,x_max+2
-		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2 + 2, y_max + 2}, [&, one_by_six, x_max](const int x, const int y) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2 + 2, y_max + 2}, [=](const int x, const int y) {
 
 
 			int upwind, donor, downwind, dif;
@@ -157,7 +157,7 @@ void advec_cell_kernel(
 		// DO k=y_min,y_max
 		//   DO j=x_min,x_max
 
-		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [=](const int i, const int j) {
 			double pre_mass_s = density1(i, j) * pre_vol(i, j);
 			double post_mass_s = pre_mass_s + mass_flux_x(i, j) -
 			                     mass_flux_x(i + 1, j + 0);
@@ -180,7 +180,7 @@ void advec_cell_kernel(
 		if (sweep_number == 1) {
 
 
-			clover::par_ranged2(policy, [&](const int i, const int j) {
+			clover::par_ranged2(policy, [=](const int i, const int j) {
 				pre_vol(i, j) = volume(i, j) +
 				                (vol_flux_y(i + 0, j + 1) - vol_flux_y(i, j) +
 				                 vol_flux_x(i + 1, j + 0) -
@@ -193,7 +193,7 @@ void advec_cell_kernel(
 		} else {
 
 
-			clover::par_ranged2(policy, [&](const int i, const int j) {
+			clover::par_ranged2(policy, [=](const int i, const int j) {
 				pre_vol(i, j) =
 						volume(i, j) + vol_flux_y(i + 0, j + 1) - vol_flux_y(i, j);
 				post_vol(i, j) = volume(i, j);
@@ -205,7 +205,7 @@ void advec_cell_kernel(
 
 		// DO k=y_min,y_max+2
 		//   DO j=x_min,x_max
-		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2 + 2}, [&, one_by_six, y_max](const int x, const int y) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2 + 2}, [=](const int x, const int y) {
 			int upwind, donor, downwind, dif;
 			double sigmat, sigma3, sigma4, sigmav, sigma, sigmam, diffuw, diffdw, limiter, wind;
 
@@ -265,7 +265,7 @@ void advec_cell_kernel(
 
 		// DO k=y_min,y_max
 		//   DO j=x_min,x_max
-		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 2, y_max + 2}, [=](const int i, const int j) {
 
 			double pre_mass_s = density1(i, j) * pre_vol(i, j);
 			double post_mass_s = pre_mass_s + mass_flux_y(i, j) -

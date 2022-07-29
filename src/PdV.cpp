@@ -60,7 +60,7 @@ void PdV_kernel(
 
 	if (predict) {
 
-		clover::par_ranged2(policy, [&, dt](const int i, const int j) {
+		clover::par_ranged2(policy, [=](const int i, const int j) {
 
 
 			double left_flux = (xarea(i, j) * (xvel0(i, j) + xvel0(i + 0, j + 1)
@@ -110,7 +110,7 @@ void PdV_kernel(
 
 	} else {
 
-		clover::par_ranged2(policy, [&, dt](const int i, const int j) {
+		clover::par_ranged2(policy, [=](const int i, const int j) {
 
 			double left_flux = (xarea(i, j) * (xvel0(i, j) + xvel0(i + 0, j + 1)
 			                                   + xvel1(i, j) + xvel1(i + 0, j + 1))) *

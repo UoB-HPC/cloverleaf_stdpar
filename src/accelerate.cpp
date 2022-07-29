@@ -63,7 +63,7 @@ void accelerate_kernel(
 //for(int j = )
 
 
-	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [&, halfdt](const int i, const int j) {
+	clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [=](const int i, const int j) {
 
 		double stepbymass_s = halfdt / ((density0(i - 1, j - 1) * volume(i - 1, j - 1)
 		                                 + density0(i - 1, j + 0) * volume(i - 1, j + 0)

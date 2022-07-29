@@ -60,7 +60,7 @@ void advec_mom_kernel(
 	if (mom_sweep == 1) { // x 1
 
 
-		clover::par_ranged2(policy, [&](const int i, const int j) {
+		clover::par_ranged2(policy, [=](const int i, const int j) {
 			post_vol(i, j) =
 					volume(i, j) + vol_flux_y(i + 0, j + 1) - vol_flux_y(i, j);
 			pre_vol(i, j) =
@@ -69,7 +69,7 @@ void advec_mom_kernel(
 	} else if (mom_sweep == 2) { // y 1
 
 
-		clover::par_ranged2(policy, [&](const int i, const int j) {
+		clover::par_ranged2(policy, [=](const int i, const int j) {
 			post_vol(i, j) =
 					volume(i, j) + vol_flux_x(i + 1, j + 0) - vol_flux_x(i, j);
 			pre_vol(i, j) =
@@ -78,7 +78,7 @@ void advec_mom_kernel(
 	} else if (mom_sweep == 3) { // x 2
 
 
-		clover::par_ranged2(policy, [&](const int i, const int j) {
+		clover::par_ranged2(policy, [=](const int i, const int j) {
 			post_vol(i, j) = volume(i, j);
 			pre_vol(i, j) =
 					post_vol(i, j) + vol_flux_y(i + 0, j + 1) - vol_flux_y(i, j);
@@ -86,7 +86,7 @@ void advec_mom_kernel(
 	} else if (mom_sweep == 4) { // y 2
 
 
-		clover::par_ranged2(policy, [&](const int i, const int j) {
+		clover::par_ranged2(policy, [=](const int i, const int j) {
 			post_vol(i, j) = volume(i, j);
 			pre_vol(i, j) =
 					post_vol(i, j) + vol_flux_x(i + 1, j + 0) - vol_flux_x(i, j);
@@ -100,7 +100,7 @@ void advec_mom_kernel(
 
 
 
-			clover::par_ranged2(Range2d{x_min - 2 + 1, y_min + 1, x_max + 2 + 2, y_max + 1 + 2}, [&](const int i, const int j) {
+			clover::par_ranged2(Range2d{x_min - 2 + 1, y_min + 1, x_max + 2 + 2, y_max + 1 + 2}, [=](const int i, const int j) {
 				// Find staggered mesh mass fluxes, nodal masses and volumes.
 				node_flux(i, j) = 0.25 * (mass_flux_x(i + 0, j - 1) +
 				                          mass_flux_x(i, j)
@@ -113,7 +113,7 @@ void advec_mom_kernel(
 
 
 
-			clover::par_ranged2(Range2d{x_min - 1 + 1, y_min + 1, x_max + 2 + 2, y_max + 1 + 2}, [&](const int i, const int j) {
+			clover::par_ranged2(Range2d{x_min - 1 + 1, y_min + 1, x_max + 2 + 2, y_max + 1 + 2}, [=](const int i, const int j) {
 				// Staggered cell mass post advection
 				node_mass_post(i, j) = 0.25 * (density1(i + 0, j - 1) *
 				                               post_vol(i + 0, j - 1)
@@ -134,7 +134,7 @@ void advec_mom_kernel(
 
 
 
-		clover::par_ranged2(Range2d{x_min - 1 + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [&](const int x, const int y) {
+		clover::par_ranged2(Range2d{x_min - 1 + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [=](const int x, const int y) {
 
 			int upwind, donor, downwind, dif;
 			double sigma, width, limiter, vdiffuw, vdiffdw, auw, adw, wind, advec_vel_s;
@@ -178,7 +178,7 @@ void advec_mom_kernel(
 
 
 
-		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [=](const int i, const int j) {
 			vel1(i, j) = (vel1(i, j) * node_mass_pre(i, j) +
 			              mom_flux(i - 1, j + 0) -
 			              mom_flux(i, j)) /
@@ -191,7 +191,7 @@ void advec_mom_kernel(
 
 
 
-			clover::par_ranged2(Range2d{x_min + 1, y_min - 2 + 1, x_max + 1 + 2, y_max + 2 + 2}, [&](const int i, const int j) {
+			clover::par_ranged2(Range2d{x_min + 1, y_min - 2 + 1, x_max + 1 + 2, y_max + 2 + 2}, [=](const int i, const int j) {
 				// Find staggered mesh mass fluxes and nodal masses and volumes.
 				node_flux(i, j) = 0.25 * (mass_flux_y(i - 1, j + 0) +
 				                          mass_flux_y(i, j)
@@ -203,7 +203,7 @@ void advec_mom_kernel(
 			// DO k=y_min-1,y_max+2
 			//   DO j=x_min,x_max+1
 
-			clover::par_ranged2(Range2d{x_min + 1, y_min - 1 + 1, x_max + 1 + 2, y_max + 2 + 2}, [&](const int i, const int j) {
+			clover::par_ranged2(Range2d{x_min + 1, y_min - 1 + 1, x_max + 1 + 2, y_max + 2 + 2}, [=](const int i, const int j) {
 				node_mass_post(i, j) = 0.25 * (density1(i + 0, j - 1) *
 				                               post_vol(i + 0, j - 1)
 				                               + density1(i, j) * post_vol(i, j)
@@ -222,7 +222,7 @@ void advec_mom_kernel(
 		//   DO j=x_min,x_max+1
 
 
-		clover::par_ranged2(Range2d{x_min + 1, y_min - 1 + 1, x_max + 1 + 2, y_max + 1 + 2}, [&](const int x, const int y) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min - 1 + 1, x_max + 1 + 2, y_max + 1 + 2}, [=](const int x, const int y) {
 
 			int upwind, donor, downwind, dif;
 			double sigma, width, limiter, vdiffuw, vdiffdw, auw, adw, wind, advec_vel_s;
@@ -268,7 +268,7 @@ void advec_mom_kernel(
 
 
 
-		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [&](const int i, const int j) {
+		clover::par_ranged2(Range2d{x_min + 1, y_min + 1, x_max + 1 + 2, y_max + 1 + 2}, [=](const int i, const int j) {
 			vel1(i, j) = (vel1(i, j) * node_mass_pre(i, j) +
 			              mom_flux(i + 0, j - 1) - mom_flux(i, j)) /
 			             node_mass_post(i, j);

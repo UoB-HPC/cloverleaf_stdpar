@@ -81,7 +81,7 @@ void generate_chunk(const int tile, global_variables &globals) {
 
 
 
-	clover::par_ranged2(xyrange_policy, [&,
+	clover::par_ranged2(xyrange_policy, [=,
             state_energy = state_energy.actual(),
             state_density = state_density.actual(),
             state_xvel = state_xvel.actual(),
@@ -99,7 +99,6 @@ void generate_chunk(const int tile, global_variables &globals) {
 
 
 		clover::par_ranged2(xyrange_policy, [=,
-                                             &field,
                 state_density = state_density.actual(),
                 state_energy = state_energy.actual(),
                 state_xvel = state_xvel.actual(),

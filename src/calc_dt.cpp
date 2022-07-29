@@ -84,7 +84,7 @@ void calc_dt_kernel(
 
     dt_min_val = std::transform_reduce(EXEC_POLICY, r.begin(), r.end(), g_big,
                                        [](auto l, auto r){ return std::fmin(l,r); },
-                                       [&, xStart, yStart, sizeX, dtu_safe, dtv_safe, dtc_safe, dtdiv_safe](int v){
+                                       [=](int v){
         const auto i = xStart + (v % sizeX);
         const auto j = yStart + (v / sizeX);
 

@@ -20,13 +20,12 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include "dpl_shim.h"
+
 #include <iostream>
 #include <utility>
 #include <cassert>
 #include <vector>
-#include <execution>
-#include <algorithm>
-#include <numeric>
 
 namespace clover {
 
@@ -68,27 +67,32 @@ namespace clover {
 		}
 	};
 
-    template <typename Z>
+    template <typename N>
     class range {
     public:
         class iterator {
             friend class range;
         public:
 
-            using difference_type = Z;
-            using value_type = Z;
-            using pointer = Z *;
-            using reference = Z &;
+            using difference_type = typename std::make_signed_t<N>;
+            using value_type = N;
+            using pointer = const N*;
+            using reference = N;
             using iterator_category = std::random_access_iterator_tag;
 
-            Z operator *() const { return i_; }
-            const iterator &operator ++() { ++i_; return *this; }
+            // XXX This is not part of the iterator spec, it gets picked up by oneDPL if enabled.
+            // Without this, the DPL SYCL backend collects the iterator data on the host and copies to the device.
+            // This type is unused for any other STL impl.
+            using is_passed_directly = std::true_type;
+
+            reference operator *() const { return i_; }
+            iterator &operator ++() { ++i_; return *this; }
             iterator operator ++(int) { iterator copy(*this); ++i_; return copy; }
 
-            const iterator &operator --() { --i_; return *this; }
+            iterator &operator --() { --i_; return *this; }
             iterator operator --(int) { iterator copy(*this); --i_; return copy; }
 
-            const iterator &operator +=(Z by) { i_+=by; return *this; }
+            iterator &operator +=(N by) { i_+=by; return *this; }
 
             value_type operator[](const difference_type &i) const { return i_ + i; }
 
@@ -100,27 +104,27 @@ namespace clover {
             bool operator < (const iterator &other) const { return i_ < other.i_; }
 
         protected:
-            explicit iterator(Z start) : i_ (start) {}
+            explicit iterator(N start) : i_ (start) {}
 
         private:
-            Z i_;
+            N i_;
         };
 
         iterator begin() const { return begin_; }
         iterator end() const { return end_; }
-        range(Z begin, Z end) : begin_(begin), end_(end) {}
+        range(N begin, N end) : begin_(begin), end_(end) {}
     private:
         iterator begin_;
         iterator end_;
     };
 
     // seq | par | par_unseq | unseq
-    constexpr static auto EXEC_POLICY = std::execution::par_unseq;
+//    static auto EXEC_POLICY = exe_policy;
 
     template<typename F>
-	static constexpr void par_ranged1(const Range1d &r, const F &functor) {
+	static void par_ranged1(const Range1d &r, const F &functor) {
 		auto groups = range<int>(r.from, r.to);
-		std::for_each(EXEC_POLICY,  groups.begin(), groups.end(), [=](int i) {
+		std::for_each(EXEC_POLICY,  groups.begin(), groups.end(), [functor](int i) {
 			functor(i);
 		});
 		//for (size_t i = r.from; i < r.to; i++) {
@@ -129,7 +133,7 @@ namespace clover {
 	}
 
 	template<typename F>
-	static constexpr void par_ranged2(const Range2d &r, const F &functor) {
+	static void par_ranged2(const Range2d &r, const F &functor) {
         auto xy = range<int>(0, r.sizeX * r.sizeY);
         std::for_each(EXEC_POLICY, xy.begin(), xy.end(), [=](int v) {
             const auto x = r.fromX + (v % r.sizeX);
@@ -183,26 +187,27 @@ namespace clover {
 
 #else
 
+
     template<typename T>
     struct Buffer1D {
 
-        const size_t size;
+        size_t size;
         T *data;
 
-        explicit Buffer1D(size_t size) : size(size), data(static_cast<T *>(std::malloc(sizeof(T) * size))) {}
-        Buffer1D(const Buffer1D &that) : Buffer1D(that.size) {
-            // XXX parallel copy should work on GPUs, but we get illegal memory access in NVHPC stdpar. Just copy on host for now, this is only needed for decomposition (it's not timed).
-#ifdef SERIAL_COPY_CTOR
-            std::copy(that.data, that.data + size, data);
-#else
-            par_ranged1({0, size}, [&](auto i){ data[i] = that.data[i]; });
-#endif
-        }
-        Buffer1D &operator=(const Buffer1D &other) = delete;
-        T operator[](size_t i) const { return data[i]; }
-        T &operator[](size_t i) { return data[i]; }
+        explicit Buffer1D(size_t size) : size(size), data(alloc_raw<T>( size)) {}
+//        Buffer1D(const Buffer1D &that) : Buffer1D(that.size) {
+//            // XXX parallel copy should work on GPUs, but we get illegal memory access in NVHPC stdpar. Just copy on host for now, this is only needed for decomposition (it's not timed).
+//#ifdef SERIAL_COPY_CTOR
+//            std::copy(that.data, that.data + size, data);
+//#else
+//            par_ranged1({0, size}, [=, this](auto i){ data[i] = that.data[i]; });
+//#endif
+//        }
+//        Buffer1D &operator=(const Buffer1D &other) = delete;
+//        T operator[](size_t i) const { return data[i]; }
+        T &operator[](size_t i)  const { return data[i]; }
         T *actual() { return data; }
-        virtual ~Buffer1D() { std::free(data); }
+        //virtual ~Buffer1D() { std::free(data); }
 
         friend std::ostream &operator<<(std::ostream &os, const Buffer1D<T> &buffer) {
             os << "Buffer1D(size: " << buffer.size << ")";
@@ -214,23 +219,23 @@ namespace clover {
     template<typename T>
     struct Buffer2D {
 
-        const size_t sizeX, sizeY;
+        size_t sizeX, sizeY;
         T *data;
 
-        Buffer2D(size_t sizeX, size_t sizeY) : sizeX(sizeX), sizeY(sizeY),  data(static_cast<T *>(std::malloc(sizeof(T) * sizeX * sizeY))) {}
-        Buffer2D(const Buffer2D &that) : Buffer2D(that.sizeX, that.sizeY) {
-            // XXX parallel copy should work on GPUs, but we get illegal memory access in NVHPC stdpar. Just copy on host for now, this is only needed for decomposition (it's not timed).
-#ifdef SERIAL_COPY_CTOR
-            std::copy(that.data, that.data + that.sizeX * that.sizeY, data);
-#else
-            par_ranged2({0, 0, sizeX, sizeY}, [&](auto i, auto j){ data[i + j * sizeX] = that.data[i + j * sizeX]; });
-#endif
-        }
-        Buffer2D &operator=(const Buffer2D &other) = delete;
-        T &operator()(size_t i, size_t j) { return data[i + j * sizeX]; }
-        T const &operator()(size_t i, size_t j) const { return data[i + j * sizeX]; }
+        Buffer2D(size_t sizeX, size_t sizeY) : sizeX(sizeX), sizeY(sizeY),  data(alloc_raw<T>(sizeX * sizeY)) {}
+//        Buffer2D(const Buffer2D &that) : Buffer2D(that.sizeX, that.sizeY) {
+//            // XXX parallel copy should work on GPUs, but we get illegal memory access in NVHPC stdpar. Just copy on host for now, this is only needed for decomposition (it's not timed).
+//#ifdef SERIAL_COPY_CTOR
+//            std::copy(that.data, that.data + that.sizeX * that.sizeY, data);
+//#else
+//            par_ranged2({0, 0, sizeX, sizeY}, [=, this](auto i, auto j){ data[i + j * sizeX] = that.data[i + j * sizeX]; });
+//#endif
+//        }
+//        Buffer2D &operator=(const Buffer2D &other) = delete;
+        T &operator()(size_t i, size_t j) const { return data[i + j * sizeX]; }
+//        T &operator()(size_t i, size_t j) const { return data[i + j * sizeX]; }
         T *actual() { return data; }
-        virtual ~Buffer2D() { std::free(data); }
+        //virtual ~Buffer2D() { std::free(data); }
 
         friend std::ostream &operator<<(std::ostream &os, const Buffer2D<T> &buffer) {
             os << "Buffer2D(sizeX: " << buffer.sizeX << " sizeY: " << buffer.sizeY << ")";
@@ -239,6 +244,32 @@ namespace clover {
     };
 
 #endif
+
+
+//    template<typename T>
+//    struct Buffer1DX {
+//
+//        size_t size;
+//        T *data;
+//
+//        explicit Buffer1DX(size_t size) : size(size), data(alloc_raw<T>( size)) {}
+//
+//
+//
+//        Buffer1DX &operator=(const Buffer1DX &other) = delete;
+//        T operator[](size_t i) const { return data[i]; }
+//        T &operator[](size_t i) { return data[i]; }
+//        T *actual() { return data; }
+//        //virtual ~Buffer1D() { std::free(data); }
+//
+//        friend std::ostream &operator<<(std::ostream &os, const Buffer1D<T> &buffer) {
+//            os << "Buffer1D(size: " << buffer.size << ")";
+//            return os;
+//        }
+//
+//    };
+//
+//    static_assert(sycl::is_device_copyable_v<Buffer1DX<float>>);
 
 
 }
