@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
-include(FetchContent)
 
 project(cloverleaf_stdpar)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(FetchContent)
 
 if (USE_TBB)
     FetchContent_Declare(
